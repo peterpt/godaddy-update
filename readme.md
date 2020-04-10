@@ -14,9 +14,11 @@ This script creates a logfile with the output in /var/log/godaddy.log
 - Curl
 - touch
 - jq
+- netcat
+- dig
 
 # Install Dependencies
-apt-get install curl touch jq
+apt-get install curl touch jq netcat dnsutils
 
 # How to make it work .
 Edit the file godaddy-update and paste there : 
