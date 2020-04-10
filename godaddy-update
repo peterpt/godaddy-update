@@ -1,13 +1,18 @@
 #!/bin/bash
+# This Script should be placed in /usr/local/sbin directory
+
 config () {
-# Your Domain api from godaddy
+# Your Domain api production key from godaddy , get it at : https://developer.godaddy.com/
 Key=Your-Production-godaddy-api
+# Your API secret
 Secret=Your-api-secret
+# Your domain Name without the www and http ex: mydomain.com
 Domain=your-domain-name
 Type=A
 Name=@
 TTL=600
 CachedIP=/tmp/current_ip
+# logfile where you can check if everything
 logfile="/var/log/godaddy.log"
 Curl=$(/usr/bin/which curl 2>/dev/null)
 Touch=$(/usr/bin/which touch 2>/dev/null)
@@ -50,11 +55,13 @@ sndstage
 }
 
 stay () {
+# If script will not able to retrieve your public ip or if the ip is not valid then will wait 2 minutes and will try again
 sleep 120
 chkip
 }
 
 monit () {
+# 600 seconds = 10 minutes before checking the godaddy domain config again
 	sleep 600
 	config && chkip
 }
