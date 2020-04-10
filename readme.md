@@ -45,6 +45,7 @@ if you need to stop the script then write in your terminal "pkill godaddy-update
 if you dont want to restart your server then after configuring all data in godaddy-update file write in your terminal
 
 cd /usr/local/sbin
+
 ./godaddy-update &
 
 - Godaddy script will run in a background process
