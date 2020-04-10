@@ -26,9 +26,11 @@ Edit the file godaddy-update and paste there :
 
 - Save your changes
 
-Then move the file godaddy-update to /usr/local/sbin folder
+- Move the file godaddy-update to /usr/local/sbin folder
 
-Move also godaddy-startup to /etc/network/if-up.d/
+- Move godaddy-startup to /etc/network/if-up.d/
+
+- Give execution permissions : chmod +x /usr/local/sbin/godaddy-update && chmod +x /etc/network/if-up.d/godaddy-startup
 
 When you startup your server you will see in your init system 
 the startup of the script .
@@ -37,4 +39,13 @@ the startup of the script .
 This script will run in background without disturbing your terminal , do not execute the script without 
 changing first the domain config data .
 if you need to stop the script then write in your terminal "pkill godaddy-update"
+
+
+# Note 2
+if you dont want to restart your server then after configuring all data in godaddy-update file write in your terminal
+
+cd /usr/local/sbin
+./godaddy-update &
+
+- Godaddy script will run in a background process
 
