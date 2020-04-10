@@ -1,4 +1,5 @@
 #!/bin/bash
+# This Script should be placed in /etc/network/if-up.d/  Directory
 green='\033[92m'
 red='\e[1;31m'
 reset="\033[00m"
