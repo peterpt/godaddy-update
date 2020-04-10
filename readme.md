@@ -33,3 +33,8 @@ Move also godaddy-startup to /etc/network/if-up.d/
 When you startup your server you will see in your init system 
 the startup of the script .
 
+# Notes
+This script will run in background without disturbing your terminal , do not execute the script without 
+changing first the domain config data .
+if you need to stop the script then write in your terminal "pkill godaddy-update"
+
