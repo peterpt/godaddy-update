@@ -1,0 +1,89 @@
+#!/bin/bash
+config () {
+# Your Domain api from godaddy
+Key=Your-Production-godaddy-api
+Secret=Your-api-secret
+Domain=your-domain-name
+Type=A
+Name=@
+TTL=600
+CachedIP=/tmp/current_ip
+logfile="/var/log/godaddy.log"
+Curl=$(/usr/bin/which curl 2>/dev/null)
+Touch=$(/usr/bin/which touch 2>/dev/null)
+${Touch} ${CachedIP} 2>/dev/null
+if [[ ! -f "$logfile" ]]
+then
+echo "Godaddy Dynamic Ip Update Script" > "$logfile"
+echo "-----------------------------------------------" >> "$logfile"
+fi
+}
+
+chkip () {
+ip=$(dig +short myip.opendns.com @resolver1.opendns.com)
+if [[ "$ip" =~ [A-Za-z] ]]
+ then
+stay
+elif [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]
+then
+fst=$(echo "$ip" | tr "." "\n" | sed -n 1p)
+snd=$(echo "$ip" | tr "." "\n" | sed -n 2p)
+trd=$(echo "$ip" | tr "." "\n" | sed -n 3p)
+fth=$(echo "$ip" | tr "." "\n" | sed -n 4p)
+if [ "$fst" -lt "1" ] || [ "$fst" -gt "255" ]
+then
+stay
+elif [[ "$snd" -gt "255" ]]
+then
+stay
+elif [[ "$trd" -gt "255" ]]
+then
+stay
+elif [[ "$fth" -gt "255" ]]
+then
+stay
+fi
+else
+stay
+fi
+sndstage
+}
+
+stay () {
+sleep 120
+chkip
+}
+
+monit () {
+	sleep 600
+	config && chkip
+}
+
+sndstage () {
+if [ "$(cat ${CachedIP} 2>/dev/null)" != "${ip}" ];then
+  Check=$(${Curl} -kLsH"Authorization: sso-key ${Key}:${Secret}" \
+  -H"Content-type: application/json" \
+  https://api.godaddy.com/v1/domains/${Domain}/records/${Type}/${Name} \
+  2>/dev/null|jq -r '.[0].data'>/dev/null)
+  if [ $? -eq 0 ] && [ "${Check}" = "${ip}" ];then
+    echo -n ${Check}>${CachedIP}
+monit   
+ else
+    Update=$(${Curl} -kLsXPUT -H"Authorization: sso-key ${Key}:${Secret}" \
+    -H"Content-type: application/json" \
+    https://api.godaddy.com/v1/domains/${Domain}/records/${Type}/${Name} \
+    -d "[{\"data\":\"${ip}\",\"ttl\":${TTL}}]" 2>/dev/null)
+    if [ $? -eq 0 ] && [ "${Update}" = "" ];then
+      echo -n ${ip}>${CachedIP}
+      echo "Updated Domain to $ip" >> "$logfile"
+monit      
+else
+      echo "Failed to update ${Update}" >> "$logfile"
+      monit
+    fi
+  fi
+else
+ monit
+fi
+}
+config && chkip

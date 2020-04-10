@@ -1,0 +1,25 @@
+#!/bin/bash
+green='\033[92m'
+red='\e[1;31m'
+reset="\033[00m"
+echo -e "GET http://google.com HTTP/1.0\n\n" | nc google.com 80 > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+exit 0
+else
+chkgd=$(pgrep godaddy-update)
+if [[ -z "$chkgd" ]]
+then
+echo -n "* - Starting Godaddy DynIP Update...."
+cd /usr/local/sbin
+godaddy-update &
+fi
+sleep 3
+chkgd=$(pgrep godaddy-update)
+if [[ ! -z "$chkgd" ]]
+then
+echo -e "$green Done$reset"
+else
+echo -e "$red Error$reset"
+fi
+fi
+exit 0
